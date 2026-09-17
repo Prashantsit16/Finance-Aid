@@ -249,3 +249,4 @@ docker-compose up --build
 ---
 
 *This is a learning project. Every decision in this repo was made consciously and I can explain the tradeoff behind it.*
+
