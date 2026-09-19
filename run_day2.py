@@ -1,4 +1,4 @@
-﻿"""
+"""
 run_day2.py — Test Day 2 hybrid retrieval pipeline.
 
 Make sure you ran run_day1.py first (data needs to be in ChromaDB).
@@ -32,6 +32,32 @@ def print_results(title: str, results: list[dict], show_score_key: str = "score"
         print(f"       Found by: {found_in}")
         preview = r["text"][:250].replace("\n", " ")
         print(f"       Text: {preview}...")
+
+
+def check_ingestion_done():
+    """Make sure ChromaDB has data before we try to search it."""
+    import chromadb
+    client = chromadb.PersistentClient(path="data/processed/chroma_db")
+    try:
+        col = client.get_collection("finance_aid")
+        count = col.count()
+        if count == 0:
+            raise ValueError("empty")
+        print(f"\n  ChromaDB ready: {count} chunks loaded.\n")
+    except Exception:
+        print("""
+============================================================
+  CHROMADB IS EMPTY — run ingestion first
+============================================================
+  Step 1: Drop a PDF into  data/raw/
+           (any annual report, legal doc, textbook PDF)
+
+  Step 2: python run_day1.py
+
+  Step 3: python run_day2.py
+============================================================
+""")
+        sys.exit(1)
 
 
 def run_comparison(query: str):
@@ -100,6 +126,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--query", type=str, default=None)
     args = parser.parse_args()
+
+    # Check ChromaDB has data before doing anything
+    check_ingestion_done()
 
     queries = [args.query] if args.query else [
         "What is the main topic of this document?",

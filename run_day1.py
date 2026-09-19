@@ -1,55 +1,67 @@
-﻿"""
-run_day1.py — The script you actually run to test Day 1.
-
-This script:
-1. Downloads a sample financial PDF (Infosys Annual Report — public domain)
-2. Runs the full ingestion pipeline on it
-3. Lets you search it with natural language queries
-4. Prints results so you can see the RAG pipeline working
+"""
+run_day1.py — Test the Day 1 ingestion pipeline.
 
 Run this with:
     python run_day1.py
 
 Or to just search (after ingestion is done):
     python run_day1.py --search-only --query "What was the revenue?"
+
+Before running:
+    Drop any PDF into:  data/raw/
+    (annual report, legal contract, textbook, anything)
 """
 
 import sys
-import urllib.request
 from pathlib import Path
 from loguru import logger
 
-# Configure logger to be readable (not JSON, not overly verbose)
 logger.remove()
 logger.add(sys.stderr, format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | {message}", level="INFO")
 
-
-SAMPLE_PDF_URL = "https://www.africau.edu/images/default/sample.pdf"
-SAMPLE_PDF_PATH = Path("data/raw/sample_report.pdf")
+RAW_DIR = Path("data/raw")
 
 
-def download_sample_pdf():
-    """Download a sample PDF if none exists in data/raw/."""
-    if SAMPLE_PDF_PATH.exists():
-        logger.info(f"Sample PDF already exists: {SAMPLE_PDF_PATH}")
-        return
+def find_pdf() -> Path:
+    """
+    Find the first PDF in data/raw/.
+    If none found, print a clear error and exit.
+    """
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    pdfs = list(RAW_DIR.glob("*.pdf"))
 
-    SAMPLE_PDF_PATH.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Downloading sample PDF from {SAMPLE_PDF_URL}...")
-    urllib.request.urlretrieve(SAMPLE_PDF_URL, SAMPLE_PDF_PATH)
-    logger.info(f"Downloaded to {SAMPLE_PDF_PATH}")
+    if not pdfs:
+        print("""
+============================================================
+  NO PDF FOUND in data/raw/
+============================================================
+  Drop any PDF into:  data/raw/
+  Then re-run:        python run_day1.py
+
+  Suggested free sources:
+    Infosys AR:  https://www.infosys.com/investors/reports-filings/annual-report/annual/documents/infosys-ar-23.pdf
+    Or any PDF from your laptop works too.
+============================================================
+""")
+        sys.exit(1)
+
+    pdf = pdfs[0]
+    logger.info(f"Found PDF: {pdf.name}")
+    if len(pdfs) > 1:
+        logger.info(f"  (Found {len(pdfs)} PDFs, using first: {pdf.name}. Others: {[p.name for p in pdfs[1:]]})")
+    return pdf
 
 
 def run_ingestion():
     from app.ingestion.pipeline import ingest_pdf
 
-    download_sample_pdf()
+    pdf_path = find_pdf()
 
     logger.info("\n" + "=" * 60)
     logger.info("RUNNING INGESTION PIPELINE")
     logger.info("=" * 60 + "\n")
 
-    summary = ingest_pdf(str(SAMPLE_PDF_PATH))
+    summary = ingest_pdf(str(pdf_path))
 
     print("\n" + "=" * 60)
     print("INGESTION SUMMARY")
