@@ -1,4 +1,4 @@
-﻿"""
+"""
 extractor.py — Pull raw text out of a PDF, page by page.
 
 Why PyMuPDF over pdfplumber?
@@ -91,12 +91,19 @@ def extract_pdf(pdf_path: str) -> list[dict]:
             f"{len(empty_pages)} pages returned very little text via PyMuPDF. "
             f"Running pdfplumber fallback on those pages."
         )
-        fallback = extract_pages_pdfplumber(pdf_path)
-
-        # Merge: replace empty PyMuPDF pages with pdfplumber output
-        fallback_map = {p["page"]: p for p in fallback}
-        for page in primary:
-            if len(page["text"].strip()) < 50 and page["page"] in fallback_map:
-                page["text"] = fallback_map[page["page"]]["text"]
+        # Wrap in try/except — pdfplumber can fail on corrupt or password-protected PDFs.
+        # If it does, we just keep whatever PyMuPDF gave us rather than crashing.
+        try:
+            fallback = extract_pages_pdfplumber(pdf_path)
+            fallback_map = {p["page"]: p for p in fallback}
+            for page in primary:
+                if len(page["text"].strip()) < 50 and page["page"] in fallback_map:
+                    page["text"] = fallback_map[page["page"]]["text"]
+        except Exception as e:
+            logger.warning(
+                f"pdfplumber fallback also failed: {e}. "
+                f"Continuing with PyMuPDF output only. "
+                f"If the PDF is scanned/image-based, you'll need OCR (e.g. pytesseract)."
+            )
 
     return primary

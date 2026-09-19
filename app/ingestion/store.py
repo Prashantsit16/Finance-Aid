@@ -1,4 +1,4 @@
-﻿"""
+"""
 store.py — Save and query chunks + embeddings in ChromaDB.
 
 WHAT IS CHROMADB?
@@ -136,11 +136,19 @@ def query_collection(
     """
     collection = get_collection(persist_dir, collection_name)
 
+    total = collection.count()
+    if total == 0:
+        logger.warning(
+            "ChromaDB collection is empty. No documents have been ingested yet. "
+            "Run: python run_day1.py  (with a real PDF in data/raw/)"
+        )
+        return []
+
     where_clause = {"source": source_filter} if source_filter else None
 
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=min(top_k, collection.count()),
+        n_results=min(top_k, total),  # can't request more than what's stored
         include=["documents", "metadatas", "distances"],
         where=where_clause,
     )
