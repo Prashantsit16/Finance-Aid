@@ -247,6 +247,19 @@ docker-compose up --build
 - Auth layer so multiple users can have separate document stores
 
 ---
+Update of Day 1 :
+<img width="1605" height="848" alt="image" src="https://github.com/user-attachments/assets/d098bf0a-5415-48f2-802a-076b36b961f0" />
+<img width="1211" height="836" alt="finance-aid-day1-anothersearch" src="https://github.com/user-attachments/assets/4fc84564-c0af-4bbc-87a8-4c0742fc05ba" />
 
-*This is a learning project. Every decision in this repo was made consciously and I can explain the tradeoff behind it.*
+Update of day 2:
+<img width="1916" height="873" alt="finance-aid-day2" src="https://github.com/user-attachments/assets/df7100ee-31f3-4f28-96c3-3f9408212b77" />
+<img width="1900" height="927" alt="finance-aid-day2-bm25" src="https://github.com/user-attachments/assets/9c6602de-36a4-4dca-a653-91e8c14950d5" />
+<img width="1082" height="805" alt="finance-aid-day2-obs2" src="https://github.com/user-attachments/assets/869e803a-92a2-4aae-ba39-bc1b35badd84" />
+<img width="1911" height="682" alt="finance-day2-reran" src="https://github.com/user-attachments/assets/cd2665fb-abaa-4ce3-a0df-45dbca42fd5b" />
+
+
+
+
+
+
 
